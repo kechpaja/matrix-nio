@@ -1022,8 +1022,8 @@ class Olm(object):
         self,
         room_id,  # type: str
         users,    # type: List[str]
-        ignore_missing_sessions=False,   # type: bool
-        ignore_unverified_devices=False  # type: bool
+        ignore_missing_sessions=False,  # type: bool
+        allow_unverified_devices=False  # type: bool
     ):
         # type: (...) -> Tuple[Set[Tuple[str, str]], Dict[str, Any]]
         logger.info("Sharing group session for room {}".format(room_id))
@@ -1085,17 +1085,14 @@ class Olm(object):
                                                   user_id,
                                                   device.id))
 
-                if not self.is_device_verified(device):
-                    if self.is_device_ignored(device):
-                        pass
-                    elif ignore_unverified_devices:
-                        self.ignore_device(device)
-                    else:
-                        raise OlmTrustError("Device {} for user {} is not "
-                                            "verified or blacklisted.".format(
-                                                device.id,
-                                                device.user_id
-                                            ))
+                if not self.is_device_verified(device)
+                        and not allow_unverified_devices
+                        and not self.is_device_ignored(device):
+                    raise OlmTrustError("Device {} for user {} is not "
+                                        "verified or blacklisted.".format(
+                                            device.id,
+                                            device.user_id
+                                        ))
 
                 user_map.append((user_id, device, session))
 

@@ -577,7 +577,7 @@ class AsyncClient(Client):
         message_type,
         content,
         tx_id=None,
-        ignore_unverified_devices=False
+        allow_unverified_devices=False
     ):
         """Send a message to a room.
 
@@ -589,10 +589,9 @@ class AsyncClient(Client):
                 message.
             tx_id(str, optional): The transaction ID of this event used to
                 uniquely identify this message.
-            ignore_unverified_devices(bool): If the room is encrypted and
-                contains unverified devices, the devices can be marked as
-                ignored here. Ignored devices will still receive encryption
-                keys for messages but they won't be marked as verified.
+            allow_unverified_devices(bool): share group session with all
+                non-blacklisted devices in room, even if they aren't explicitly
+                verified or ignored. 
 
         If the room where the message should be sent is encrypted the message
         will be encrypted before sending.
@@ -639,7 +638,7 @@ class AsyncClient(Client):
                 else:
                     share = await self.share_group_session(
                         room_id,
-                        ignore_unverified_devices=ignore_unverified_devices
+                        allow_unverified_devices=allow_unverified_devices
                     )
                     await self.run_response_callbacks([share])
 
@@ -685,9 +684,9 @@ class AsyncClient(Client):
     @store_loaded
     async def share_group_session(
             self,
-            room_id,                         # type: str
-            tx_id=None,                      # type: Optional[str]
-            ignore_unverified_devices=False  # type: bool
+            room_id,                        # type: str
+            tx_id=None,                     # type: Optional[str]
+            allow_unverified_devices=False  # type: bool
     ):
         # type: (...) -> _ShareGroupSessionT
         """Share a group session with a room.
@@ -699,9 +698,8 @@ class AsyncClient(Client):
                 sent to.
             tx_id(str, optional): The transaction ID of this event used to
                 uniquely identify this message.
-            ignore_unverified_devices(bool): Mark unverified devices as
-                ignored. Ignored devices will still receive encryption
-                keys for messages but they won't be marked as verified.
+            allow_unverified_devices(bool): Share group session with devices
+                that have not been verified or blacklisted.
 
 
         Raises LocalProtocolError if the client isn't logged in, if the session
@@ -740,7 +738,7 @@ class AsyncClient(Client):
                     room_id,
                     list(room.users.keys()),
                     ignore_missing_sessions=True,
-                    ignore_unverified_devices=ignore_unverified_devices
+                    allow_unverified_devices=allow_unverified_devices
                 )
 
                 uuid = tx_id or uuid4()

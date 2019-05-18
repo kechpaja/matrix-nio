@@ -523,7 +523,7 @@ class HttpClient(Client):
         room_id,
         ignore_missing_sessions=False,
         tx_id=None,
-        ignore_unverified_devices=False
+        allow_unverified_devices=False
     ):
         # type: (str, bool, str, bool) -> Tuple[UUID, bytes]
         """Share a group session with a room.
@@ -558,7 +558,7 @@ class HttpClient(Client):
             room_id,
             list(room.users.keys()),
             ignore_missing_sessions,
-            ignore_unverified_devices
+            allow_unverified_devices
         )
 
         uuid = tx_id or uuid4()
